@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TRAFFIX AI - Intelligent Predictive Traffic & Spillback Prevention</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <!-- Header Navbar -->
+  <header class="navbar">
+    <div class="brand-container">
+      <div class="logo-badge">TRAFFIX AI</div>
+      <div class="title-group">
+        <h1>Predictive Spillback-Aware Signal Control</h1>
+        <p>Arterial Corridor Network (J1 — J2 — J3) • Microscopic SUMO & TraCI Simulation</p>
+      </div>
+    </div>
+    <nav class="nav-links">
+      <a href="/" class="nav-link active">Live Dashboard</a>
+      <a href="/comparison" class="nav-link">Evaluation & Benchmark</a>
+      <div id="sim-status-badge" class="status-badge status-running">● LIVE SIMULATING</div>
+    </nav>
+  </header>
+
+  <main class="container">
+    <!-- Simulation Control Toolbar -->
+    <section class="control-bar">
+      <!-- Playback Controls -->
+      <div class="button-group">
+        <button id="btn-start" class="btn btn-primary" onclick="startSim()">▶ Resume</button>
+        <button id="btn-pause" class="btn btn-warning" onclick="pauseSim()">⏸ Pause</button>
+        <button id="btn-step" class="btn" onclick="stepSim()">⏭ Step (1s)</button>
+        <button id="btn-reset" class="btn btn-danger" onclick="resetSim()">↺ Reset</button>
+      </div>
+
+      <!-- Scenarios & Triggers -->
+      <div class="button-group">
+        <label for="select-density" style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 700;">DENSITY:</label>
+        <select id="select-density" class="select-controller" onchange="onDensityChange()">
+          <option value="normal">Normal (200 vehicles)</option>
+          <option value="medium" selected>Medium (500 vehicles)</option>
+          <option value="high">High (1,000 vehicles)</option>
+          <option value="extreme">Extreme Congestion (1,500 vehicles)</option>
+          <option value="stress_test">Stress Test / Surge (2,000 vehicles)</option>
+        </select>
+
+        <label for="select-controller" style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 700; margin-left: 0.4rem;">CONTROLLER:</label>
+        <select id="select-controller" class="select-controller" onchange="onControllerChange()">
+          <option value="spillback_aware">TRAFFIX AI (Predictive Spillback-Aware)</option>
+          <option value="fixed_time">Fixed-Time Baseline (Rigid 90s Cycle)</option>
+        </select>
+
+        <label for="select-speed" style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 700; margin-left: 0.4rem;">SPEED:</label>
+        <select id="select-speed" class="select-controller" onchange="onSpeedChange()">
+          <option value="1">1x</option>
+          <option value="2">2x</option>
+          <option value="4">4x</option>
+        </select>
+      </div>
+
+      <!-- Interactive Demonstration Injections -->
+      <div class="button-group">
+        <button id="btn-emergency" class="btn btn-emergency" onclick="injectEmergency()">🚑 Inject Ambulance</button>
+        <button id="btn-incident" class="btn btn-incident" onclick="toggleIncidentBlockage()">⚠️ Simulate J1→J2 Blockage</button>
+      </div>
+    </section>
+
+    <!-- Top KPI Telemetry Grid -->
+    <section class="kpi-grid">
+      <div class="kpi-card">
+        <span class="kpi-label">Simulation Clock</span>
+        <div class="kpi-value"><span id="metric-clock">0</span> <span class="kpi-unit">s</span></div>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-label">Active Vehicles</span>
+        <div class="kpi-value" id="metric-active-vehs">0</div>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-label">Corridor Speed</span>
+        <div class="kpi-value"><span id="metric-avg-speed">0.0</span> <span class="kpi-unit">km/h</span></div>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-label">Network Delay / Waiting</span>
+        <div class="kpi-value"><span id="metric-waiting-time">0.0</span> <span class="kpi-unit">s</span></div>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-label">Cumulative CO2</span>
+        <div class="kpi-value"><span id="metric-co2">0.00</span> <span class="kpi-unit">kg</span></div>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-label">Cumulative Fuel</span>
+        <div class="kpi-value"><span id="metric-fuel">0.00</span> <span class="kpi-unit">L</span></div>
+      </div>
+      <div class="kpi-card">
+        <span class="kpi-label">Completed Throughput</span>
+        <div class="kpi-value" id="metric-throughput">0</div>
+      </div>
+    </section>
+
+    <!-- LIVE 2D CORRIDOR VEHICLE CANVAS -->
+    <section class="canvas-panel">
+      <div class="canvas-header">
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <h2 style="font-size: 0.98rem; font-weight: 700;">Live Microscopic Simulation View (Moving Vehicles)</h2>
+          <span style="font-size: 0.72rem; color: #38bdf8; background: rgba(56, 189, 248, 0.1); padding: 0.2rem 0.5rem; border-radius: 4px; font-weight: 600;">TraCI Real-Time Telemetry</span>
+        </div>
+
+        <div class="canvas-legend">
+          <div class="legend-item"><div class="legend-dot" style="background-color: #38bdf8;"></div> Car</div>
+          <div class="legend-item"><div class="legend-dot" style="background-color: #facc15;"></div> Motorcycle</div>
+          <div class="legend-item"><div class="legend-dot" style="background-color: #34d399;"></div> Bus</div>
+          <div class="legend-item"><div class="legend-dot" style="background-color: #f87171;"></div> Truck</div>
+          <div class="legend-item"><div class="legend-dot" style="background-color: #ffffff; border: 1px solid #ef4444;"></div> Ambulance</div>
+          <div class="legend-item"><div class="legend-dot" style="background-color: #ef4444;"></div> Brake / Queued</div>
+        </div>
+      </div>
+
+      <div class="canvas-wrapper">
+        <canvas id="corridor-canvas" width="1100" height="320"></canvas>
+      </div>
+    </section>
+
+    <!-- AI DECISION EXPLAINABILITY PANEL -->
+    <section class="explain-panel">
+      <div class="explain-header">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+        AI Controller Engineering Decisions & Justifications
+      </div>
+      <div id="ai-decision-text" class="explain-text">
+        Initializing adaptive signal control and predictive storage monitoring...
+      </div>
+    </section>
+
+    <!-- Signalized Junction States (J1 - J2 - J3) -->
+    <section class="junctions-layout">
+      <!-- Junction 1 -->
+      <div class="junction-card" id="card-j1">
+        <div class="junction-header">
+          <span class="junction-title">Junction 1 (West Inflow)</span>
+          <span id="j1-gating-badge" class="action-tag">NORMAL</span>
+        </div>
+        <div class="traffic-light-rig">
+          <div id="j1-bulb-red" class="light-bulb bulb-red"></div>
+          <div id="j1-bulb-yellow" class="light-bulb bulb-yellow"></div>
+          <div id="j1-bulb-green" class="light-bulb bulb-green active"></div>
+        </div>
+        <div class="phase-info">
+          <span>Phase: <strong id="j1-phase-name" style="color: #fff;">CORRIDOR_GREEN</strong></span>
+          <span>Elapsed: <strong id="j1-time-in-phase">0</strong>s</span>
+        </div>
+        <div id="j1-action-text" style="font-size: 0.72rem; color: var(--text-muted); font-style: italic;">
+          Maintaining corridor green
+        </div>
+      </div>
+
+      <!-- Junction 2 -->
+      <div class="junction-card" id="card-j2">
+        <div class="junction-header">
+          <span class="junction-title">Junction 2 (Center Bottleneck)</span>
+          <span id="j2-gating-badge" class="action-tag">NORMAL</span>
+        </div>
+        <div class="traffic-light-rig">
+          <div id="j2-bulb-red" class="light-bulb bulb-red"></div>
+          <div id="j2-bulb-yellow" class="light-bulb bulb-yellow"></div>
+          <div id="j2-bulb-green" class="light-bulb bulb-green active"></div>
+        </div>
+        <div class="phase-info">
+          <span>Phase: <strong id="j2-phase-name" style="color: #fff;">CORRIDOR_GREEN</strong></span>
+          <span>Elapsed: <strong id="j2-time-in-phase">0</strong>s</span>
+        </div>
+        <div id="j2-action-text" style="font-size: 0.72rem; color: var(--text-muted); font-style: italic;">
+          Monitoring downstream storage J2->J3
+        </div>
+      </div>
+
+      <!-- Junction 3 -->
+      <div class="junction-card" id="card-j3">
+        <div class="junction-header">
+          <span class="junction-title">Junction 3 (East Outflow)</span>
+          <span id="j3-gating-badge" class="action-tag">NORMAL</span>
+        </div>
+        <div class="traffic-light-rig">
+          <div id="j3-bulb-red" class="light-bulb bulb-red"></div>
+          <div id="j3-bulb-yellow" class="light-bulb bulb-yellow"></div>
+          <div id="j3-bulb-green" class="light-bulb bulb-green active"></div>
+        </div>
+        <div class="phase-info">
+          <span>Phase: <strong id="j3-phase-name" style="color: #fff;">CORRIDOR_GREEN</strong></span>
+          <span>Elapsed: <strong id="j3-time-in-phase">0</strong>s</span>
+        </div>
+        <div id="j3-action-text" style="font-size: 0.72rem; color: var(--text-muted); font-style: italic;">
+          Discharging through traffic
+        </div>
+      </div>
+    </section>
+
+    <!-- Downstream Road Storage & Spillback Risk Monitoring -->
+    <section class="storage-grid">
+      <!-- Link J1 -> J2 -->
+      <div class="storage-card">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <h3 style="font-size: 0.92rem;">Inter-Intersection Storage: Link J1 → J2</h3>
+            <span style="font-size: 0.72rem; color: var(--text-secondary);">Length: 250m (2 Lanes) • Usable: 225m</span>
+          </div>
+          <span id="j1-j2-risk-badge" class="alert-badge badge-low">LOW (SRI 0.00)</span>
+        </div>
+        <div class="storage-bar-container">
+          <div id="j1-j2-storage-fill" class="storage-bar-fill" style="width: 10%; background-color: var(--signal-green);"></div>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--text-secondary);">
+          <span>Current Queue: <strong id="j1-j2-queue" style="color: #fff;">0.0</strong> m</span>
+          <span>Available Storage: <strong id="j1-j2-avail" style="color: #fff;">225.0</strong> m (<span id="j1-j2-avail-pct">100%</span>)</span>
+        </div>
+      </div>
+
+      <!-- Link J2 -> J3 -->
+      <div class="storage-card">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <h3 style="font-size: 0.92rem;">Inter-Intersection Storage: Link J2 → J3</h3>
+            <span style="font-size: 0.72rem; color: var(--text-secondary);">Length: 250m (2 Lanes) • Usable: 225m</span>
+          </div>
+          <span id="j2-j3-risk-badge" class="alert-badge badge-low">LOW (SRI 0.00)</span>
+        </div>
+        <div class="storage-bar-container">
+          <div id="j2-j3-storage-fill" class="storage-bar-fill" style="width: 10%; background-color: var(--signal-green);"></div>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--text-secondary);">
+          <span>Current Queue: <strong id="j2-j3-queue" style="color: #fff;">0.0</strong> m</span>
+          <span>Available Storage: <strong id="j2-j3-avail" style="color: #fff;">225.0</strong> m (<span id="j2-j3-avail-pct">100%</span>)</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Real-Time Telemetry Charts Grid -->
+    <section class="charts-grid">
+      <!-- Chart 1: Short-term Queue Predictions -->
+      <div class="chart-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem;">
+          <h3 style="font-size: 0.88rem;">Short-Term Queue Prediction (10s – 30s Horizons)</h3>
+          <span style="font-size: 0.72rem; color: var(--text-secondary);">Link J1 → J2 Queue (m)</span>
+        </div>
+        <div class="chart-container">
+          <canvas id="chart-queue"></canvas>
+        </div>
+      </div>
+
+      <!-- Chart 2: Live Emissions -->
+      <div class="chart-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem;">
+          <h3 style="font-size: 0.88rem;">Real-Time Environmental Telemetry</h3>
+          <span style="font-size: 0.72rem; color: var(--text-secondary);">CO2 (g/s) & Fuel (ml/s)</span>
+        </div>
+        <div class="chart-container">
+          <canvas id="chart-emissions"></canvas>
+        </div>
+      </div>
+
+      <!-- Chart 3: Performance -->
+      <div class="chart-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.6rem;">
+          <h3 style="font-size: 0.88rem;">Network Velocity & Waiting Penalty</h3>
+          <span style="font-size: 0.72rem; color: var(--text-secondary);">Avg Speed (km/h) vs Delay (s)</span>
+        </div>
+        <div class="chart-container">
+          <canvas id="chart-performance"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- OPTIONAL CAMERA-BASED COMPUTER VISION DETECTION (OPENCV) -->
+    <section class="vision-panel">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h2 style="font-size: 0.98rem; font-weight: 700;">Camera-Based Computer Vision Vehicle Detection (OpenCV)</h2>
+        <span style="font-size: 0.75rem; color: var(--text-muted);">Background Subtraction (MOG2) • Centroid Tracking • Virtual Tripwire</span>
+      </div>
+
+      <div class="disclaimer-banner">
+        <strong>Academic Clarification:</strong> This module runs real-time Computer Vision (OpenCV) contour tracking and vehicle counting. It operates independently from the SUMO microscopic simulation engine above to demonstrate camera sensing capabilities.
+      </div>
+
+      <div class="vision-container">
+        <div class="vision-stream-box">
+          <img src="/api/vision/feed" alt="Live Camera Vehicle Detection Stream" class="vision-stream-img">
+        </div>
+        <div class="vision-details">
+          <div class="kpi-card">
+            <span class="kpi-label">Vision Algorithm</span>
+            <span style="font-size: 0.9rem; font-weight: 700; color: #fff;">OpenCV MOG2 + Morphological Filter</span>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-label">Virtual Tripwire Counting</span>
+            <span style="font-size: 0.9rem; font-weight: 700; color: var(--signal-green);">Orange Detection Threshold Line</span>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-label">Vehicle Bounding Boxes</span>
+            <span style="font-size: 0.85rem; color: var(--text-secondary);">Cyan = Cars, Yellow = Bikes, Red = Heavy Trucks/Buses</span>
+          </div>
+          <div class="button-group" style="margin-top: 0.4rem;">
+            <button class="btn btn-primary" onclick="fetch('/api/vision/source', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({source:'synthetic'})})">Procedural Traffic Camera</button>
+            <button class="btn" onclick="fetch('/api/vision/source', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({source:'webcam'})})">Connect USB Webcam</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/static/js/dashboard.js"></script>
+</body>
+</html>

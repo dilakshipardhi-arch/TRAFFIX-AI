@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TRAFFIX AI - Comparative Performance Evaluation</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <!-- Header Navbar -->
+  <header class="navbar">
+    <div class="brand-container">
+      <div class="logo-badge">TRAFFIX AI</div>
+      <div class="title-group">
+        <h1>Comparative Performance & Emission Evaluation</h1>
+        <p>Fixed-Time Signal Control vs Proposed Predictive Spillback-Aware Controller</p>
+      </div>
+    </div>
+    <nav class="nav-links">
+      <a href="/" class="nav-link">Live Dashboard</a>
+      <a href="/comparison" class="nav-link active">Evaluation & Benchmark</a>
+      <div class="status-badge status-running">● EMPIRICAL SUMO DATA</div>
+    </nav>
+  </header>
+
+  <main class="container">
+    <!-- Benchmark Actions Bar -->
+    <section class="control-bar">
+      <div>
+        <h2 style="font-size: 0.95rem; font-weight: 700;">Simulated Scenario Benchmark Execution</h2>
+        <p style="font-size: 0.78rem; color: var(--text-secondary);">
+          Executes identical traffic demand back-to-back under both controllers to extract empirical comparative metrics.
+        </p>
+      </div>
+      <div class="button-group">
+        <label for="benchmark-density" style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 700;">DENSITY:</label>
+        <select id="benchmark-density" class="select-controller" onchange="loadBenchmarkData()">
+          <option value="normal">Normal (~200 vehs)</option>
+          <option value="medium" selected>Medium (~500 vehs)</option>
+          <option value="high">High (~1,000 vehs)</option>
+          <option value="extreme">Extreme (~1,500 vehs)</option>
+          <option value="stress_test">Stress Test (~2,000 vehs)</option>
+        </select>
+
+        <label for="benchmark-duration" style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 700; margin-left: 0.4rem;">DURATION:</label>
+        <select id="benchmark-duration" class="select-controller">
+          <option value="180">180s (3 min quick run)</option>
+          <option value="300" selected>300s (5 min standard)</option>
+          <option value="600">600s (10 min corridor test)</option>
+          <option value="1200">1200s (20 min full evaluation)</option>
+        </select>
+        <button id="btn-run-benchmark" class="btn btn-primary" onclick="runBenchmark()">⚡ Run Benchmark</button>
+      </div>
+    </section>
+
+    <!-- Percentage Improvement KPI Banner -->
+    <section class="kpi-grid">
+      <div class="kpi-card" style="border-left: 4px solid var(--signal-green);">
+        <span class="kpi-label">Waiting Time Reduction</span>
+        <div class="kpi-value" style="color: var(--signal-green);"><span id="imp-delay">-0.0</span>%</div>
+        <span style="font-size: 0.72rem; color: var(--text-muted);">Lower congestion penalty</span>
+      </div>
+      <div class="kpi-card" style="border-left: 4px solid var(--accent-blue);">
+        <span class="kpi-label">Average Speed Gain</span>
+        <div class="kpi-value" style="color: var(--accent-blue);"><span id="imp-speed">+0.0</span>%</div>
+        <span style="font-size: 0.72rem; color: var(--text-muted);">Faster corridor progression</span>
+      </div>
+      <div class="kpi-card" style="border-left: 4px solid var(--accent-cyan);">
+        <span class="kpi-label">Throughput Increase</span>
+        <div class="kpi-value" style="color: var(--accent-cyan);"><span id="imp-throughput">+0.0</span>%</div>
+        <span style="font-size: 0.72rem; color: var(--text-muted);">More vehicles cleared</span>
+      </div>
+      <div class="kpi-card" style="border-left: 4px solid #a855f7;">
+        <span class="kpi-label">CO2 Emissions Reduced</span>
+        <div class="kpi-value" style="color: #a855f7;"><span id="imp-co2">-0.0</span>%</div>
+        <span style="font-size: 0.72rem; color: var(--text-muted);">Reduced idling emissions</span>
+      </div>
+      <div class="kpi-card" style="border-left: 4px solid var(--signal-yellow);">
+        <span class="kpi-label">Fuel Consumption Saved</span>
+        <div class="kpi-value" style="color: var(--signal-yellow);"><span id="imp-fuel">-0.0</span>%</div>
+        <span style="font-size: 0.72rem; color: var(--text-muted);">Lower stop-and-go fuel loss</span>
+      </div>
+    </section>
+
+    <!-- Detailed Quantitative Comparison Table -->
+    <section class="canvas-panel">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+        <h2 style="font-size: 0.95rem; font-weight: 700;">Quantitative Performance Comparison Table (Single Run)</h2>
+        <span id="benchmark-timestamp" style="font-size: 0.75rem; color: var(--text-secondary);">Last benchmark: --</span>
+      </div>
+
+      <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem;">
+          <thead>
+            <tr style="border-bottom: 2px solid var(--border-color); color: var(--text-secondary);">
+              <th style="padding: 0.65rem 0.85rem;">Evaluation Metric</th>
+              <th style="padding: 0.65rem 0.85rem;">Fixed-Time Baseline</th>
+              <th style="padding: 0.65rem 0.85rem; color: var(--accent-blue);">TRAFFIX AI Proposed</th>
+              <th style="padding: 0.65rem 0.85rem;">Relative Improvement</th>
+            </tr>
+          </thead>
+          <tbody id="comparison-table-body">
+            <tr style="border-bottom: 1px solid var(--border-color);">
+              <td style="padding: 0.65rem 0.85rem;">Total Delay / Waiting Time</td>
+              <td style="padding: 0.65rem 0.85rem;" id="tbl-f-delay">--</td>
+              <td style="padding: 0.65rem 0.85rem; font-weight: 700; color: #fff;" id="tbl-p-delay">--</td>
+              <td style="padding: 0.65rem 0.85rem; font-weight: 700; color: var(--signal-green);" id="tbl-diff-delay">--</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border-color);">
+              <td style="padding: 0.65rem 0.85rem;">Completed Vehicles (Throughput)</td>
+              <td style="padding: 0.65rem 0.85rem;" id="tbl-f-tp">--</td>
+              <td style="padding: 0.65rem 0.85rem; font-weight: 700; color: #fff;" id="tbl-p-tp">--</td>
+              <td style="padding: 0.65rem 0.85rem; font-weight: 700; color: var(--accent-cyan);" id="tbl-diff-tp">--</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border-color);">
+              <td style="padding: 0.65rem 0.85rem;">Average Corridor Speed</td>
+              <td style="padding: 0.65rem 0.85rem;" id="tbl-f-speed">--</td>
+              <td style="padding: 0.65rem 0.85rem; font-weight: 700; color: #fff;" id="tbl-p-speed">--</td>
+              <td style="padding: 0.65rem 0.85rem; font-weight: 700; color: var(--accent-blue);" id="tbl-diff-speed">--</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border-color);">
+              <td style="padding: 0.65rem 0.85rem;">Maximum Queue Length Observed</td>
+              <td style="padding: 0.65rem 0.85rem;" id="tbl-f-queue">--</td>
+              <td style="padding: 0.65rem 0.85rem; font-weight: 700; color: #fff;" id="tbl-p-queue">--</td>
+              <td style="padding: 0.65rem 0.85rem; font-weight: 700; color: var(--signal-green);" id="tbl-diff-queue">--</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border-color);">
+              <td style="padding: 0.65rem 0.85rem;">Cumulative Fuel Consumption</td>
+              <td style="padding: 0.65rem 0.85rem;" id="tbl-f-fuel">--</td>
+              <td style="padding: 0.65rem 0.85rem; font-weight: 700; color: #fff;" id="tbl-p-fuel">--</td>
+              <td style="padding: 0.65rem 0.85rem; font-weight: 700; color: var(--signal-yellow);" id="tbl-diff-fuel">--</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border-color);">
+              <td style="padding: 0.65rem 0.85rem;">Cumulative CO2 Emissions</td>
+              <td style="padding: 0.65rem 0.85rem;" id="tbl-f-co2">--</td>
+              <td style="padding: 0.65rem 0.85rem; font-weight: 700; color: #fff;" id="tbl-p-co2">--</td>
+              <td style="padding: 0.65rem 0.85rem; font-weight: 700; color: #a855f7;" id="tbl-diff-co2">--</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border-color);">
+              <td style="padding: 0.65rem 0.85rem;">Cumulative NOx Emissions</td>
+              <td style="padding: 0.65rem 0.85rem;" id="tbl-f-nox">--</td>
+              <td style="padding: 0.65rem 0.85rem; font-weight: 700; color: #fff;" id="tbl-p-nox">--</td>
+              <td style="padding: 0.65rem 0.85rem; font-weight: 700; color: #a855f7;" id="tbl-diff-nox">--</td>
+            </tr>
+            <tr>
+              <td style="padding: 0.65rem 0.85rem;">Spillback Gridlock Incidents</td>
+              <td style="padding: 0.65rem 0.85rem;" id="tbl-f-spill">0</td>
+              <td style="padding: 0.65rem 0.85rem; font-weight: 700; color: #fff;" id="tbl-p-spill">0</td>
+              <td style="padding: 0.65rem 0.85rem; font-weight: 700; color: var(--signal-green);">0 Incidents</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Side-by-Side Benchmark Charts -->
+    <section class="charts-grid">
+      <div class="chart-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+          <h3 style="font-size: 0.88rem;">Traffic Efficiency Comparison</h3>
+          <span style="font-size: 0.72rem; color: var(--text-secondary);">Delay (s) & Speed (km/h)</span>
+        </div>
+        <div class="chart-container">
+          <canvas id="chart-comp-traffic"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+          <h3 style="font-size: 0.88rem;">Environmental Impact Comparison</h3>
+          <span style="font-size: 0.72rem; color: var(--text-secondary);">CO2 (kg) & Fuel (Liters)</span>
+        </div>
+        <div class="chart-container">
+          <canvas id="chart-comp-emissions"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- Time-Series Progression Comparison -->
+    <section class="canvas-panel">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+        <h2 style="font-size: 0.95rem; font-weight: 700;">Waiting Time Accumulation Curves</h2>
+        <span style="font-size: 0.72rem; color: var(--text-secondary);">Comparing queue buildup over time between Fixed-Time and TRAFFIX AI</span>
+      </div>
+      <div style="height: 260px; position: relative;">
+        <canvas id="chart-comp-timeseries"></canvas>
+      </div>
+    </section>
+  </main>
+
+  <script src="/static/js/comparison.js"></script>
+</body>
+</html>

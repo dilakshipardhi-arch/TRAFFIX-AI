@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  TRAFFIX AI - Simulation Configuration
+  Baseline: Fixed-Time Traffic Light Control
+-->
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
+    <input>
+        <net-file value="../networks/corridor_3j.net.xml"/>
+        <route-files value="../routes/corridor_flows.rou.xml"/>
+    </input>
+
+    <time>
+        <begin value="0"/>
+        <end value="3600"/>
+        <step-length value="1.0"/>
+    </time>
+
+    <processing>
+        <!-- Disable teleportation to realistically measure fixed-time spillback penalties -->
+        <time-to-teleport value="-1"/>
+        <waiting-time-memory value="1000"/>
+        <collision.action value="none"/>
+    </processing>
+
+    <report>
+        <verbose value="false"/>
+        <no-step-log value="true"/>
+        <no-warnings value="false"/>
+    </report>
+
+    <gui_only>
+        <start value="true"/>
+        <quit-on-end value="true"/>
+    </gui_only>
+</configuration>

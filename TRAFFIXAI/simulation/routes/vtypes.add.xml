@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  TRAFFIX AI - Heterogeneous Vehicle Type Definitions
+  Includes: Car, Motorcycle, Bus, Truck, and Emergency Vehicle (Ambulance/Fire)
+  with distinct acceleration, deceleration, length, and emission models
+-->
+<additional xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/additional_file.xsd">
+    <!-- Passenger Car -->
+    <vType id="car" 
+           vClass="passenger" 
+           length="4.5" 
+           width="1.8" 
+           maxSpeed="33.33" 
+           accel="2.6" 
+           decel="4.5" 
+           sigma="0.5" 
+           minGap="2.5" 
+           guiShape="passenger" 
+           emissionClass="HBEFA3/PC_G_EU4" 
+           color="0.2,0.6,1.0"/>
+
+    <!-- Motorcycle -->
+    <vType id="motorcycle" 
+           vClass="motorcycle" 
+           length="2.2" 
+           width="0.9" 
+           maxSpeed="38.89" 
+           accel="3.2" 
+           decel="5.0" 
+           sigma="0.5" 
+           minGap="1.5" 
+           guiShape="motorcycle" 
+           emissionClass="HBEFA3/LDV_G_EU4" 
+           color="1.0,0.8,0.0"/>
+
+    <!-- Transit Bus -->
+    <vType id="bus" 
+           vClass="bus" 
+           length="12.0" 
+           width="2.5" 
+           maxSpeed="22.22" 
+           accel="1.2" 
+           decel="3.5" 
+           sigma="0.4" 
+           minGap="3.0" 
+           guiShape="bus" 
+           emissionClass="HBEFA3/Bus" 
+           color="0.2,0.85,0.3"/>
+
+    <!-- Heavy Goods Truck -->
+    <vType id="truck" 
+           vClass="truck" 
+           length="10.0" 
+           width="2.5" 
+           maxSpeed="20.0" 
+           accel="1.3" 
+           decel="3.5" 
+           sigma="0.4" 
+           minGap="3.5" 
+           guiShape="truck" 
+           emissionClass="HBEFA3/HDV_D_EU4" 
+           color="0.9,0.3,0.3"/>
+
+    <!-- Emergency Priority Vehicle (Ambulance / Fire) -->
+    <vType id="emergency"
+           vClass="emergency"
+           length="6.5"
+           width="2.2"
+           maxSpeed="38.89"
+           accel="3.5"
+           decel="5.0"
+           sigma="0.2"
+           minGap="2.0"
+           speedFactor="1.3"
+           guiShape="emergency"
+           emissionClass="HBEFA3/PC_G_EU4"
+           color="1.0,1.0,1.0"/>
+</additional>

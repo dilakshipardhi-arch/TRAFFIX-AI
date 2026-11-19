@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  TRAFFIX AI - Node Definitions
+  Corridor with 3 signalised intersections (J1, J2, J3) spaced 250m apart
+-->
+<nodes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/nodes_file.xsd">
+    <!-- Signalized Corridor Intersections -->
+    <node id="J1" x="250.0" y="200.0" type="traffic_light" tl="J1"/>
+    <node id="J2" x="500.0" y="200.0" type="traffic_light" tl="J2"/>
+    <node id="J3" x="750.0" y="200.0" type="traffic_light" tl="J3"/>
+
+    <!-- Corridor Inflow / Outflow External Endpoints -->
+    <node id="W_in" x="0.0" y="200.0" type="priority"/>
+    <node id="E_out" x="1000.0" y="200.0" type="priority"/>
+
+    <!-- Cross Street External Endpoints (North) -->
+    <node id="N1" x="250.0" y="380.0" type="priority"/>
+    <node id="N2" x="500.0" y="380.0" type="priority"/>
+    <node id="N3" x="750.0" y="380.0" type="priority"/>
+
+    <!-- Cross Street External Endpoints (South) -->
+    <node id="S1" x="250.0" y="20.0" type="priority"/>
+    <node id="S2" x="500.0" y="20.0" type="priority"/>
+    <node id="S3" x="750.0" y="20.0" type="priority"/>
+</nodes>

@@ -1,0 +1,38 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+    <vType id="car" vClass="passenger" length="4.5" width="1.8" maxSpeed="33.33" accel="2.6" decel="4.5" sigma="0.5" minGap="2.5" guiShape="passenger" emissionClass="HBEFA3/PC_G_EU4" color="0.2,0.6,1.0" speedFactor="1.0" />
+    <vType id="motorcycle" vClass="motorcycle" length="2.2" width="0.9" maxSpeed="38.89" accel="3.2" decel="5.0" sigma="0.5" minGap="1.5" guiShape="motorcycle" emissionClass="HBEFA3/LDV_G_EU4" color="1.0,0.8,0.0" speedFactor="1.0" />
+    <vType id="bus" vClass="bus" length="12.0" width="2.5" maxSpeed="22.22" accel="1.2" decel="3.5" sigma="0.4" minGap="3.0" guiShape="bus" emissionClass="HBEFA3/Bus" color="0.2,0.85,0.3" speedFactor="1.0" />
+    <vType id="truck" vClass="truck" length="10.0" width="2.5" maxSpeed="20.0" accel="1.3" decel="3.5" sigma="0.4" minGap="3.5" guiShape="truck" emissionClass="HBEFA3/HDV_D_EU4" color="0.9,0.3,0.3" speedFactor="1.0" />
+    <vType id="emergency" vClass="emergency" length="6.5" width="2.2" maxSpeed="38.89" accel="3.5" decel="5.0" sigma="0.2" minGap="2.0" guiShape="emergency" emissionClass="HBEFA3/PC_G_EU4" color="1.0,1.0,1.0" speedFactor="1.3" />
+    <route id="r_WE" edges="W_to_J1 J1_to_J2 J2_to_J3 J3_to_E" />
+    <route id="r_EW" edges="E_to_J3 J3_to_J2 J2_to_J1 J1_to_W" />
+    <route id="r_NS_1" edges="N1_to_J1 J1_to_S1" />
+    <route id="r_SN_1" edges="S1_to_J1 J1_to_N1" />
+    <route id="r_NS_2" edges="N2_to_J2 J2_to_S2" />
+    <route id="r_SN_2" edges="S2_to_J2 J2_to_N2" />
+    <route id="r_NS_3" edges="N3_to_J3 J3_to_S3" />
+    <route id="r_SN_3" edges="S3_to_J3 J3_to_N3" />
+    <route id="r_N1_E" edges="N1_to_J1 J1_to_J2 J2_to_J3 J3_to_E" />
+    <route id="r_S1_E" edges="S1_to_J1 J1_to_J2 J2_to_J3 J3_to_E" />
+    <route id="r_N2_E" edges="N2_to_J2 J2_to_J3 J3_to_E" />
+    <route id="r_S2_E" edges="S2_to_J2 J2_to_J3 J3_to_E" />
+    <flow id="f_car_we" route="r_WE" type="car" begin="0" end="1800" vehsPerHour="227" departLane="best" departSpeed="max" />
+    <flow id="f_moto_we" route="r_WE" type="motorcycle" begin="0" end="1800" vehsPerHour="70" departLane="best" departSpeed="max" />
+    <flow id="f_bus_we" route="r_WE" type="bus" begin="0" end="1800" vehsPerHour="35" departLane="best" departSpeed="avg" />
+    <flow id="f_truck_we" route="r_WE" type="truck" begin="0" end="1800" vehsPerHour="17" departLane="best" departSpeed="max" />
+    <flow id="f_car_ew" route="r_EW" type="car" begin="0" end="1800" vehsPerHour="130" departLane="best" departSpeed="max" />
+    <flow id="f_moto_ew" route="r_EW" type="motorcycle" begin="0" end="1800" vehsPerHour="40" departLane="best" departSpeed="max" />
+    <flow id="f_bus_ew" route="r_EW" type="bus" begin="0" end="1800" vehsPerHour="20" departLane="best" departSpeed="avg" />
+    <flow id="f_truck_ew" route="r_EW" type="truck" begin="0" end="1800" vehsPerHour="10" departLane="best" departSpeed="max" />
+    <flow id="f_cross_j1_ns" route="r_NS_1" type="car" begin="0" end="1800" vehsPerHour="67" departLane="best" departSpeed="max" />
+    <flow id="f_cross_j1_sn" route="r_SN_1" type="car" begin="0" end="1800" vehsPerHour="67" departLane="best" departSpeed="max" />
+    <flow id="f_turn_j1" route="r_N1_E" type="car" begin="0" end="1800" vehsPerHour="22" departLane="best" departSpeed="max" />
+    <flow id="f_cross_j2_ns" route="r_NS_2" type="car" begin="0" end="1800" vehsPerHour="76" departLane="best" departSpeed="max" />
+    <flow id="f_cross_j2_sn" route="r_SN_2" type="car" begin="0" end="1800" vehsPerHour="76" departLane="best" departSpeed="max" />
+    <flow id="f_cross_j2_bus" route="r_NS_2" type="bus" begin="0" end="1800" vehsPerHour="13" departLane="best" departSpeed="avg" />
+    <flow id="f_turn_j2" route="r_N2_E" type="car" begin="0" end="1800" vehsPerHour="22" departLane="best" departSpeed="max" />
+    <flow id="f_cross_j3_ns" route="r_NS_3" type="car" begin="0" end="1800" vehsPerHour="67" departLane="best" departSpeed="max" />
+    <flow id="f_cross_j3_sn" route="r_SN_3" type="car" begin="0" end="1800" vehsPerHour="67" departLane="best" departSpeed="max" />
+    <vehicle id="ambulance_1" type="emergency" route="r_WE" depart="120" departLane="best" departSpeed="max" />
+</routes>

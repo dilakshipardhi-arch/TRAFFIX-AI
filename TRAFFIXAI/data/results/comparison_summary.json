@@ -1,0 +1,41 @@
+{
+  "benchmark_date": "2026-11-19 10:40:45",
+  "duration_seconds": 180,
+  "fixed_time": {
+    "controller_type": "fixed_time",
+    "simulation_duration_s": 180,
+    "total_throughput_vehs": 82,
+    "total_waiting_time_s": 2072.0,
+    "average_speed_kmh": 27.3,
+    "max_queue_observed_m": 169.5,
+    "total_spillback_incidents": 0,
+    "total_spillback_duration_s": 0.0,
+    "cumulative_fuel_liters": 14.701,
+    "cumulative_co2_kg": 34.2363,
+    "cumulative_nox_g": 102.072,
+    "cumulative_co_g": 827.345
+  },
+  "proposed_controller": {
+    "controller_type": "spillback_aware",
+    "simulation_duration_s": 180,
+    "total_throughput_vehs": 91,
+    "total_waiting_time_s": 110.0,
+    "average_speed_kmh": 29.93,
+    "max_queue_observed_m": 169.5,
+    "total_spillback_incidents": 0,
+    "total_spillback_duration_s": 0.0,
+    "cumulative_fuel_liters": 14.628,
+    "cumulative_co2_kg": 34.0697,
+    "cumulative_nox_g": 99.659,
+    "cumulative_co_g": 624.384
+  },
+  "improvements": {
+    "waiting_time_reduction_pct": 94.69,
+    "speed_increase_pct": 9.63,
+    "queue_reduction_pct": 0.0,
+    "spillback_events_reduction_pct": 0.0,
+    "fuel_savings_pct": 0.5,
+    "co2_reduction_pct": 0.49,
+    "throughput_increase_pct": 10.98
+  }
+}
